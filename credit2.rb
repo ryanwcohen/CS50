@@ -14,25 +14,21 @@ def load_number
 	@card_length = @card_number.length
 end
 
+
+CARD_NUMBER_PATTERNS = {
+  /^3[47].*/ => "AMEX",
+  /^4.*/ => "VISA",
+  /^5[12345].*/ => "MASTERCARD"
+}
+
 # checks first two digits of the number to validate as a recognized type
-def validate_type 
-	if @vault[0].to_i == 3 && @vault[1].to_i == 4
-		@card_type = "AMEX"
-	elsif @vault[0].to_i == 3 && @vault[1].to_i == 7
-		@card_type = "AMEX"
-	elsif @vault[0].to_i == 4
-		@card_type = "VISA"
-	elsif @vault[0].to_i == 5 && @vault[1].to_i == 1
-		@card_type = "MASTERCARD"
-	elsif @vault[0].to_i == 5 && @vault[1].to_i == 2
-		@card_type = "MASTERCARD"
-	elsif @vault[0].to_i == 5 && @vault[1].to_i == 3
-		@card_type = "MASTERCARD"
-	elsif @vault[0].to_i == 5 && @vault[1].to_i == 4
-		@card_type = "MASTERCARD"
-	elsif @vault[0].to_i == 5 && @vault[1].to_i == 5
-		@card_type = "MASTERCARD"
-	else @card_type = "INVALID" end
+def validate_type
+  @card_type = "INVALID"
+  CARD_NUMBER_PATTERNS.each_pair do |pattern, card_type|
+    next unless @card_number =~ pattern
+    @card_type = card_type
+    break
+  end
 end 
 
 # make sure length matches the proper card type 
@@ -63,7 +59,9 @@ def validate_luhn1
 	elsif @card_length == 16
 		@luhn_place1 = 0
 		@luhn_place2 = 1
-	else @luhn_place1 = 0
+	else 
+	  @luhn_valid = "INVALID"
+	  return
 	end 
 			
 	while @luhn_place1 <= @card_length do			
