@@ -15,16 +15,23 @@ def load_number
 end
 
 
-CARD_NUMBER_PATTERNS = {
+CARD_TYPES_BY_PATTERN = {
   /^3[47].*/ => "AMEX",
   /^4.*/ => "VISA",
   /^5[12345].*/ => "MASTERCARD"
 }
 
+CARD_LENGTHS_BY_TYPE = {
+  "AMEX" => [15],
+  "MASTERCARD" => [16],
+  "VISA" => [13,16]
+}
+CARD_LENGTHS_BY_TYPE.default = []
+
 # checks first two digits of the number to validate as a recognized type
 def validate_type
   @card_type = "INVALID"
-  CARD_NUMBER_PATTERNS.each_pair do |pattern, card_type|
+  CARD_TYPES_BY_PATTERN.each_pair do |pattern, card_type|
     next unless @card_number =~ pattern
     @card_type = card_type
     break
@@ -33,15 +40,11 @@ end
 
 # make sure length matches the proper card type 
 def validate_length
-	if @card_length == 15 && @card_type == "AMEX"
-		@card_length_valid = "VALID" 
-	elsif @card_length == 16 && @card_type == "MASTERCARD"
-		@card_length_valid = "VALID"
-	elsif @card_length == 13 && @card_type == "VISA"
-		@card_length_valid = "VALID"
-	elsif @card_length == 16 && @card_type == "VISA"
-		@card_length_valid = "VALID"
-	else @card_length_valid = "INVALID" end
+  if CARD_LENGTHS_BY_TYPE[@card_type].include? @card_length
+    @card_length_valid = "VALID"
+  else
+    @card_length_valid = "INVALID"
+  end
 end
 
 # run the card number through the luhn algorithm to make sure it's syntactically kosher
