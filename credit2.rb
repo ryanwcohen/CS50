@@ -51,7 +51,6 @@ end
 # yes, I'm aware this isn't anywhere near elegant
 
 def validate_luhn1
-	@luhn_number = " "
   @luhn_checksum = 0
 
 	@vault.map(&:to_i).each_with_index do |digit, index|
