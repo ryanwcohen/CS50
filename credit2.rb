@@ -52,45 +52,21 @@ end
 
 def validate_luhn1
 	@luhn_number = " "
+  @luhn_checksum = 0
 
-	if @card_length == 13  
-		@luhn_place1 = 1
-		@luhn_place2 = 0	
-	elsif @card_length == 15
-		@luhn_place1 = 1
-		@luhn_place2 = 0
-	elsif @card_length == 16
-		@luhn_place1 = 0
-		@luhn_place2 = 1
+	@vault.map(&:to_i).each_with_index do |digit, index|
+	  if @card_length.remainder(2) == (index + 1).remainder(2)
+	    @luhn_checksum += digit
+    else
+      @luhn_checksum += (digit * 2).to_s.chars.inject(0){|subtot,digit| subtot + digit.to_i}
+    end
+	end
+
+	if @luhn_checksum.remainder(10) == 0
+		@luhn_valid = "VALID"
 	else 
 	  @luhn_valid = "INVALID"
-	  return
-	end 
-			
-	while @luhn_place1 <= @card_length do			
-		@luhn_number += (@vault[@luhn_place1].to_i * 2).to_s 
-		@luhn_place1 += 2		
-		end
-	@luhn_vault = @luhn_number.split(//)
-
-	luhn_subtotal = 0	
-	@luhn_vault.each do |x| 
-		luhn_subtotal += x.to_i 
-		end 
-
-	@luhn_number2 = 0
-
-	while @luhn_place2 <= @card_length do
-		@luhn_number2 += @vault[@luhn_place2].to_i
-		@luhn_place2 += 2		
-		end
-	
-	check = luhn_subtotal + @luhn_number2
-
-	if check.remainder(10) == 0
-		@luhn_valid = "VALID"
-	else @luhn_valid = "INVALID" end
-
+	end
 end
 
 def display_results
