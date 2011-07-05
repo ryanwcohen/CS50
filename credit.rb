@@ -1,4 +1,3 @@
-
 # CS50.tv pset1-h credit.c
 # validates a credit card number against first two digits, length and Luhn's algorithm
 
@@ -47,19 +46,6 @@ def validate_length
 	else @card_length_valid = "INVALID" end
 end
 
-# run the card number through the luhn algorithm to make sure it's syntactically kosher
-
-def validate_luhn
-	if @card_length == 15
-(@vault[14].to_i * 2) + (@vault[12].to_i * 2) + (@vault[10].to_i * 2) + (@vault[8].to_i * 2) + (@vault[6].to_i * 2) + (@vault[4].to_i * 2) + (@vault[2].to_i * 2)		
-	elsif @card_length == 16
-	
-	elsif @card_length == 13
-	
-	else @luhn_valid = "INVALID"
-	end
-
-end
 
 def display_results
 	puts ""	
