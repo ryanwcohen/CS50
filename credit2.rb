@@ -14,82 +14,58 @@ def load_number
 	@card_length = @card_number.length
 end
 
+
+CARD_TYPES_BY_PATTERN = {
+  /^3[47].*/ => "AMEX",
+  /^4.*/ => "VISA",
+  /^5[12345].*/ => "MASTERCARD"
+}
+
+CARD_LENGTHS_BY_TYPE = {
+  "AMEX" => [15],
+  "MASTERCARD" => [16],
+  "VISA" => [13,16]
+}
+CARD_LENGTHS_BY_TYPE.default = []
+
 # checks first two digits of the number to validate as a recognized type
-def validate_type 
-	if @vault[0].to_i == 3 && @vault[1].to_i == 4
-		@card_type = "AMEX"
-	elsif @vault[0].to_i == 3 && @vault[1].to_i == 7
-		@card_type = "AMEX"
-	elsif @vault[0].to_i == 4
-		@card_type = "VISA"
-	elsif @vault[0].to_i == 5 && @vault[1].to_i == 1
-		@card_type = "MASTERCARD"
-	elsif @vault[0].to_i == 5 && @vault[1].to_i == 2
-		@card_type = "MASTERCARD"
-	elsif @vault[0].to_i == 5 && @vault[1].to_i == 3
-		@card_type = "MASTERCARD"
-	elsif @vault[0].to_i == 5 && @vault[1].to_i == 4
-		@card_type = "MASTERCARD"
-	elsif @vault[0].to_i == 5 && @vault[1].to_i == 5
-		@card_type = "MASTERCARD"
-	else @card_type = "INVALID" end
+def validate_type
+  @card_type = "INVALID"
+  CARD_TYPES_BY_PATTERN.each_pair do |pattern, card_type|
+    next unless @card_number =~ pattern
+    @card_type = card_type
+    break
+  end
 end 
 
 # make sure length matches the proper card type 
 def validate_length
-	if @card_length == 15 && @card_type == "AMEX"
-		@card_length_valid = "VALID" 
-	elsif @card_length == 16 && @card_type == "MASTERCARD"
-		@card_length_valid = "VALID"
-	elsif @card_length == 13 && @card_type == "VISA"
-		@card_length_valid = "VALID"
-	elsif @card_length == 16 && @card_type == "VISA"
-		@card_length_valid = "VALID"
-	else @card_length_valid = "INVALID" end
+  if CARD_LENGTHS_BY_TYPE[@card_type].include? @card_length
+    @card_length_valid = "VALID"
+  else
+    @card_length_valid = "INVALID"
+  end
 end
 
 # run the card number through the luhn algorithm to make sure it's syntactically kosher
 # yes, I'm aware this isn't anywhere near elegant
 
 def validate_luhn1
-	@luhn_number = " "
+  @luhn_checksum = 0
 
-	if @card_length == 13  
-		@luhn_place1 = 1
-		@luhn_place2 = 0	
-	elsif @card_length == 15
-		@luhn_place1 = 1
-		@luhn_place2 = 0
-	elsif @card_length == 16
-		@luhn_place1 = 0
-		@luhn_place2 = 1
-	else @luhn_place1 = 0
-	end 
-			
-	while @luhn_place1 <= @card_length do			
-		@luhn_number += (@vault[@luhn_place1].to_i * 2).to_s 
-		@luhn_place1 += 2		
-		end
-	@luhn_vault = @luhn_number.split(//)
+	@vault.map(&:to_i).each_with_index do |digit, index|
+	  if @card_length.remainder(2) == (index + 1).remainder(2)
+	    @luhn_checksum += digit
+    else
+      @luhn_checksum += (digit * 2).to_s.chars.inject(0){|subtot,digit| subtot + digit.to_i}
+    end
+	end
 
-	luhn_subtotal = 0	
-	@luhn_vault.each do |x| 
-		luhn_subtotal += x.to_i 
-		end 
-
-	@luhn_number2 = 0
-
-	while @luhn_place2 <= @card_length do
-		@luhn_number2 += @vault[@luhn_place2].to_i
-		@luhn_place2 += 2		
-		end
-	
-	check = luhn_subtotal + @luhn_number2
-
-	if check.remainder(10) == 0
+	if @luhn_checksum.remainder(10) == 0
 		@luhn_valid = "VALID"
-	else @luhn_valid = "INVALID" end
-
+	else 
+	  @luhn_valid = "INVALID"
+	end
 end
 
 def display_results
