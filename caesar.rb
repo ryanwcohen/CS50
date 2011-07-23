@@ -30,9 +30,6 @@ def chiffre
 		else	original_number = @character_to_digit[character]			
 			@new_number = original_number.to_i + @key
 
-			if @new_number < 0 
-				@new_number = -1*(@new_number) end
-
 			if @new_number > 25
 				@new_number = @new_number.modulo(26) end
 		
