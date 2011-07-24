@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+# cs50.tv pset2 caesar.c
+require "lib/caesar"
+
+# you might look into command line gems like thor
+
+encipher_mode = ARGV[0] == 'encipher'
+input_text = File.read(ARGV[1])
+key = ARGV[2].to_i
+file_out = ARGV[3]
+
+output_text = if encipher_mode
+  Caesar.encipher(key, input_text)
+else
+  Caesar.decipher(key, input_text)
+end
+
+File.open(file_out, "w+") do |f|
+   f.puts output_text
+end 
